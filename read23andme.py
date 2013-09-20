@@ -59,13 +59,97 @@ anSNP = returnSNP('rs3934834',mylist)
 
 returnSNP('kake',mylist)
 
+def listrs(SNPlist):
+    rslist = [entry['rsID'] for entry in SNPlist]
+    return rslist
 
-#def comparetwo(file1,file2):
-    #Compare two genotypefiles
+small_list = mylist[0:5]
 
-#def find_union(list1,list2):
+tiny_list = mylist[0:3]
+
+def find_union(SNPlist1,SNPlist2):
     #Find SNPs which are in both of two lists
- #   repeatedSNPs = []
-  #  for element in zip(list1,list2)
+    rslist1 = listrs(SNPlist1)
+    rslist2 = listrs(SNPlist2)
+    list1set = set(rslist1)
+    unionset = list1set.intersection(rslist2)
+    return unionset
+
+def comparefiles(file1,file2):
+    #Compare two genotypefiles. Return SNPs which are in both files.
+    list1 = createlist(file1)
+    list2 = createlist(file2)
+    inboth = find_union(list1,list2)
+    return inboth
 
 showinfo(anSNP)
+
+print 'Comparing files:'
+print comparefiles('snippet.txt','snippet2.txt')
+
+theunion = find_union(mylist,small_list)
+print 'Union:',theunion
+
+def findhomozygotesrs(SNPlist):
+    #Find all homozygous loci
+    homozygotes = []
+    for element in SNPlist:
+        if element['Genotype'][0] == element['Genotype'][1]:
+            homozygotes.append(element['rsID'])
+    return homozygotes
+
+homozygotes = findhomozygotesrs(small_list)
+
+print 'Homozygotes:',homozygotes
+
+def getposinlist(rsID,SNPlist): #Get the position, in an SNP list, of a dictionary entry with a given rsID
+    for i in range(len(SNPlist)):
+        if SNPlist[i]['rsID']== rsID:
+            index = i
+    return index
+
+print 'tinylist:',tiny_list
+
+position = getposinlist('rs3094315',tiny_list)
+print 'position:',position
+print 'rs:','rs3094315'
+
+def findheterozygotesrs(SNPlist):
+    #Find all heterozygous loci
+    heterozygotes = []
+    for element in SNPlist:
+        if element['Genotype'][0] != element['Genotype'][1]:
+            heterozygotes.append(element['rsID'])
+    return heterozygotes
+
+
+def sanitycheck(SNPlist):
+    #Run a sanity check on a list of SNP genotypes
+    sane = True
+    N = len(SNPlist)
+    if (len(findhomozygotesrs(SNPlist)) + len(findheterozygotesrs(SNPlist)) ) != N:
+        sane = False
+    return sane
+
+print 'Sanitycheck:',sanitycheck(mylist)
+
+def findnoncalled(SNPlist):
+    #Find all loci with at least one uncalled base
+    noncalled = []
+    for SNP in SNPlist:
+        if ('N' in SNP['Genotype']) or ('n' in SNP['Genotype']):
+            noncalled.append(SNP['rsID'])
+    return noncalled
+
+noncalled = findnoncalled(mylist)
+print 'noncalled:',noncalled
+            
+
+def findgenotype(genotype,SNPlist):
+    matching = []
+    for SNP in SNPlist:
+        if SNP['Genotype'] == genotype:
+            matching.append(SNP['rsID'])
+    return matching
+
+print findgenotype('GG',tiny_list)
