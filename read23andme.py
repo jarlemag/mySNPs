@@ -5,12 +5,15 @@
 
 import string
 
-#Hardcodd values:
+#Hardcoded values:
 
 filename = 'Snippet.txt'
 
 referencesequence = 'CRCh36'
 
+mito = 'genome_Jarle_Pahr_Mito_20130920050521.txt'
+
+bases = 'ATGC'
 
 #Class definitions:
 
@@ -126,14 +129,14 @@ print 'Union:',theunion
 def getdiploids(SNPlist):
     diploids = []
     for SNP in SNPlist:
-        if len(SNP['Genotype']) == 2:
+        if any(x in SNP['Genotype'] for x in bases) & (len(SNP['Genotype']) == 2):
             diploids.append(SNP)
     return diploids
 
 def gethaploids(SNPlist):
     haploids = []
     for SNP in SNPlist:
-        if len(SNP['Genotype']) ==1:
+        if (any(x in SNP['Genotype'] for x in bases)) & (len(SNP['Genotype']) ==1):
             haploids.append(SNP)
     return haploids
 
@@ -142,7 +145,7 @@ def findhomozygotesIDs(SNPlist):
     homozygotes = []
     filteredlist = getdiploids(SNPlist)
     for element in filteredlist:
-        if element['Genotype'][0] == element['Genotype'][1]:
+        if (any(x in element['Genotype'] for x in bases)) & (element['Genotype'][0] == element['Genotype'][1]):
             homozygotes.append(element['rsID'])
     return homozygotes
 
@@ -189,6 +192,14 @@ def findnoncalled(SNPlist):
             noncalled.append(SNP['rsID'])
     return noncalled
 
+def findcalled(SNPlist):
+    #Find all loci with at least one called base
+    called = []
+    for SNP in SNPlist:
+        if any(x in SNP['Genotype']):
+            called.append(SNP['rsID'])
+    return called
+
 noncalled = findnoncalled(mylist)
 print 'noncalled:',noncalled
             
@@ -233,12 +244,10 @@ def zygosityplot(SNPlist):
     ax.set_xticks(left)
     ax.set_xticklabels([i[0] for i in counts])
     ax.set_ylim([0,totalcount])
+    #ax.set_title('Figure title')
     fig.autofmt_xdate() #Autorotates the tick labels
     pl.show()
     return counts,left
-
-
-
 
 def timewarning(elapsedtime,completedfraction,tolerance):
     '''A function to estimate time needed to complete an operation, and give a warning and option to abort
@@ -253,6 +262,7 @@ def timewarning(elapsedtime,completedfraction,tolerance):
         else:
             return False #Signal to abort the operation.
 
-mydata = readpartialfile('Snippet.txt',80)
+mydata = createlist('genome_Jarle_Pahr_Full_20110901082829.txt')
 
 zygosityplot(mydata)
+
