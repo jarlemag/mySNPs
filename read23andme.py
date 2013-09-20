@@ -110,15 +110,16 @@ def gethaploids(SNPlist):
             haploids.append(SNP)
     return haploids
 
-def findhomozygotesrs(SNPlist):
+def findhomozygotesIDs(SNPlist):
     #Find all homozygous loci
     homozygotes = []
-    for element in SNPlist:
+    filteredlist = getdiploids(SNPlist)
+    for element in filteredlist:
         if element['Genotype'][0] == element['Genotype'][1]:
             homozygotes.append(element['rsID'])
     return homozygotes
 
-homozygotes = findhomozygotesrs(small_list)
+homozygotes = findhomozygotesIDs(small_list)
 
 print 'Homozygotes:',homozygotes
 
@@ -134,20 +135,20 @@ position = getposinlist('rs3094315',tiny_list)
 print 'position:',position
 print 'rs:','rs3094315'
 
-def findheterozygotesrs(SNPlist):
+def findheterozygotesIDs(SNPlist):
     #Find all heterozygous loci
     heterozygotes = []
-    for element in SNPlist:
+    filteredlist = getdiploids(SNPlist)
+    for element in filteredlist:
         if element['Genotype'][0] != element['Genotype'][1]:
             heterozygotes.append(element['rsID'])
     return heterozygotes
-
 
 def sanitycheck(SNPlist):
     #Run a sanity check on a list of SNP genotypes
     sane = True
     N = len(SNPlist)
-    if (len(findhomozygotesrs(SNPlist)) + len(findheterozygotesrs(SNPlist)) ) != N:
+    if (len(findhomozygotesIDs(SNPlist)) + len(findheterozygotesIDs(SNPlist)) ) != N:
         sane = False
     return sane
 
@@ -179,6 +180,7 @@ def getchromosome(chromosomenumber,SNPlist):
     
 
 def getbyposition(position,SNPlist):
+    #Fetch one or more SNPs by their position in the reference sequence.
     snps = []
     for SNP in SNPlist:
         if SNP['Position'] == position:
@@ -189,3 +191,37 @@ def getbyrefseq(reference,SNPlist):
     return filterlist('Reference',reference,SNPlist)
     
     
+import matplotlib.pylab as pl
+
+def zygosityplot(SNPlist):
+    counts = []
+    counts.append(('heterozygotescount',len(findheterozygotesIDs(SNPlist))))
+    counts.append(('homozygotescount',len(findhomozygotesIDs(SNPlist))))
+    counts.append(('haploidcount',len(gethaploids(SNPlist))))
+    totalcount = sum([i[1] for i in counts])
+    left = [i for i in range(len(counts))]
+    fig = pl.figure()
+    ax = fig.add_subplot(1,1,1)
+    ax.bar(left,[i[1] for i in counts],align = 'center') #Create a barplot
+    ax.set_xticks(left)
+    ax.set_xticklabels([i[0] for i in counts])
+    ax.set_ylim([0,totalcount])
+    fig.autofmt_xdate() #Autorotates the tick labels
+    pl.show()
+    return counts,left
+
+counts,left =  zygosityplot(small_list)
+
+
+def timewarning(elapsedtime,completedfraction,tolerance):
+    '''A function to estimate time needed to complete an operation, and give a warning and option to abort
+    if the estimated time is too high.
+    '''
+    timeestimate = elapsedtime/completedfraction
+    if timeestimate > tolerance:
+        response = input('Estimated time remaining for this operation is %.1f minutes. Continue? (y/n)'
+                         % (timeestimate/60))
+        if response == 'y' or response == 'Y':
+            return True #Signal to continue the operation.
+        else:
+            return False #Signal to abort the operation.
