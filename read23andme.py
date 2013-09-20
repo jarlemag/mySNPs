@@ -32,11 +32,13 @@ def createlist(filename): #Extract SNP data from a 23andme file.
 
     for line in listoflines:
         if line[0] != '#': #Unless the line has been commented out.
-            linesplit = string.split(line)
+            linesplit = string.split(line) #Splits strings by whitespace
             currentSNP = {'rsID':linesplit[0],'Chromosome':linesplit[1],
                       'Position':linesplit[2],'Genotype':linesplit[3],'Reference':referencesequence}
             SNPlist.append(currentSNP)
     return SNPlist
+
+
 
 def readpartialfile(filename,percentage): #Extract SNP data from part of a file.
     with open(filename) as dataset:
@@ -52,6 +54,11 @@ def readpartialfile(filename,percentage): #Extract SNP data from part of a file.
                 SNPlist.append(currentSNP)
     return SNPlist  
 
+
+def rsIDs(filename): #Extract rsIDs from a file
+    with open(filename) as data:
+        return data.readlines()
+         
 
 def printfile():
     with open(filename) as f:
@@ -249,6 +256,15 @@ def zygosityplot(SNPlist):
     pl.show()
     return counts,left
 
+
+def chromosomeplot(SNPlist):
+    counts = []
+
+def isinlistplot(SNPlist):
+    for SNP in SNPlist:
+        if SNP['rsID
+
+
 def timewarning(elapsedtime,completedfraction,tolerance):
     '''A function to estimate time needed to complete an operation, and give a warning and option to abort
     if the estimated time is too high.
@@ -266,3 +282,10 @@ mydata = createlist('genome_Jarle_Pahr_Full_20110901082829.txt')
 
 zygosityplot(mydata)
 
+
+def savelist(snplist,filename): #Write a list of rsIDs to disk.
+    out = "\n".join(snplist)
+    
+    writeout = open(filename, "w+")
+    writeout.write(str(out))
+    writeout.close()
