@@ -7,6 +7,10 @@ Includes code from:
 
 http://snpedia.com/index.php/Bulk
 
+
+Links:
+ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606/database/organism_data/OmimVarLocusIdSNP.bcp.gz
+
 '''
 
 from wikitools import *
