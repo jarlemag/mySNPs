@@ -1,10 +1,22 @@
 #read23andme.py
 
+
+#Imports
+
 import string
+
+#Hardcodd values:
+
 filename = 'Snippet.txt'
 
 referencesequence = 'CRCh36'
 
+
+#Class definitions:
+
+
+
+#Functions:
 
 #Open dataset
 
@@ -22,6 +34,21 @@ def createlist(filename): #Extract SNP data from a 23andme file.
                       'Position':linesplit[2],'Genotype':linesplit[3],'Reference':referencesequence}
             SNPlist.append(currentSNP)
     return SNPlist
+
+def readpartialfile(filename,percentage): #Extract SNP data from part of a file.
+    with open(filename) as dataset:
+        listoflines = dataset.readlines()
+        SNPlist = []
+        numberoflines = len(listoflines)
+        getlines = int(numberoflines*percentage/100)
+        for i in range(getlines):
+            if listoflines[i][0] != '#':
+                linesplit = string.split(listoflines[i])
+                currentSNP = {'rsID':linesplit[0],'Chromosome':linesplit[1],
+                      'Position':linesplit[2],'Genotype':linesplit[3],'Reference':referencesequence}
+                SNPlist.append(currentSNP)
+    return SNPlist  
+
 
 def printfile():
     with open(filename) as f:
@@ -210,7 +237,7 @@ def zygosityplot(SNPlist):
     pl.show()
     return counts,left
 
-counts,left =  zygosityplot(small_list)
+
 
 
 def timewarning(elapsedtime,completedfraction,tolerance):
@@ -225,3 +252,7 @@ def timewarning(elapsedtime,completedfraction,tolerance):
             return True #Signal to continue the operation.
         else:
             return False #Signal to abort the operation.
+
+mydata = readpartialfile('Snippet.txt',80)
+
+zygosityplot(mydata)
