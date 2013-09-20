@@ -35,6 +35,12 @@ mylist = createlist(filename)
 
 #print SNPlist
 
+def filterlist(key,value,SNPlist):
+    matches = []
+    for SNP in SNPlist:
+        if SNP[filteron] == value:
+            matches.append(SNP)
+    return matches
 
 def returnSNP(rsID,SNPlist):
     if type(rsID) == int:
@@ -89,6 +95,20 @@ print comparefiles('snippet.txt','snippet2.txt')
 
 theunion = find_union(mylist,small_list)
 print 'Union:',theunion
+
+def getdiploids(SNPlist):
+    diploids = []
+    for SNP in SNPlist:
+        if len(SNP['Genotype']) == 2:
+            diploids.append(SNP)
+    return diploids
+
+def gethaploids(SNPlist):
+    haploids = []
+    for SNP in SNPlist:
+        if len(SNP['Genotype']) ==1:
+            haploids.append(SNP)
+    return haploids
 
 def findhomozygotesrs(SNPlist):
     #Find all homozygous loci
@@ -153,3 +173,19 @@ def findgenotype(genotype,SNPlist):
     return matching
 
 print findgenotype('GG',tiny_list)
+
+def getchromosome(chromosomenumber,SNPlist):
+    return filterlist('Chromosome',chromosomenumber,SNPlist)
+    
+
+def getbyposition(position,SNPlist):
+    snps = []
+    for SNP in SNPlist:
+        if SNP['Position'] == position:
+            snps.append(SNP)
+    return snps
+    
+def getbyrefseq(reference,SNPlist):
+    return filterlist('Reference',reference,SNPlist)
+    
+    
