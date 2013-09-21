@@ -17,13 +17,31 @@ bases = 'ATGC'
 
 #Class definitions:
 
-
+class SingleNucleotidePolymorphism:
+    def __init__(self,rsID,organism = 'Human',chromosome=None,
+                  position=None,reference=None,genotype=None):
+        self.rsID = rsID
+        self.organism = organism
+        self.chromosome = chromosome
+        self.position = position
+        self.reference = reference
+        self.genotype = genotype
+    def displayID(self):
+        print 'rsID:',self.rsID
+    def displaychromosome(self):
+        print 'Chromosome:',self.chromosome
+    def displayposition(self):
+        print 'Position:',self.position
+    def displayref(self):
+        print 'Reference sequence:',self.reference
+    def displaygenotype(self):
+        print 'Genotype:',self.genotype
 
 #Functions:
 
 #Open dataset
 
-def createlist(filename): #Extract SNP data from a 23andme file.
+def createdictlist(filename): #Extract SNP data from a 23andme file and store as a list of dicts.
 
     with open(filename) as dataset:
         listoflines = dataset.readlines()
@@ -38,6 +56,21 @@ def createlist(filename): #Extract SNP data from a 23andme file.
             SNPlist.append(currentSNP)
     return SNPlist
 
+
+'''
+Extract SNP data from a 23andme file and store as a list of objects of the SingleNucleotidePolymorphism class.
+'''
+def createobjectlist(SNPlist):
+    with open(filename) as dataset:
+        listoflines = dataset.readlines()
+
+    SNPlist = []
+    for line in listoflines:
+        if line[0] != "#":
+            linesplit = string.split(line) #Splits strings by whitespace#Splits string by whitespace
+            currentSNP = SingleNucleotidePolymorphism(linesplit[0],chromosome = linesplit[1],position = linesplit[2], genotype = linesplit[3],reference = referencesequence)
+            SNPlist.append(currentSNP)
+    return SNPlist
 
 
 def readpartialfile(filename,percentage): #Extract SNP data from part of a file.
@@ -65,13 +98,6 @@ def printfile():
         for line in f.readlines():
             print line
 
-mylist = createlist(filename)
-
-        
-#printfile()
-
-#print SNPlist
-
 def filterlist(key,value,SNPlist):
     matches = []
     for SNP in SNPlist:
@@ -79,36 +105,44 @@ def filterlist(key,value,SNPlist):
             matches.append(SNP)
     return matches
 
-def returnSNP(rsID,SNPlist):
+def returnSNP(rsID,SNPlist): #Fetch an 
     if type(rsID) == int:
         rsID = str(rsID)
     snpfound = False
     for SNP in SNPlist:
-        if SNP['rsID'] == rsID:
+        if isinstance(SNP,SingleNucleotidePolymorphism) == True:
+            subjectid = SNP.rsID
+        else:
+            subjectid = SNP['rsID']
+        if  subjectid == rsID:
             snpfound = True
             return SNP
     if snpfound == False:
         print 'Could not find entry for rsID %s' % rsID
 
-def showinfo(SNP):
-    print 'Selected SNP:'
-    print 'rsID:',SNP['rsID']
-    print 'Chromosome:',SNP['Chromosome']
-    print 'Position:',SNP['Position']
-    print 'Genotype:',SNP['Genotype']
-    print 'Reference sequence:',SNP['Reference']
+def showinfo(SNP): #Prints infor for a selected SNP.
+    if isinstance(SNP,SingleNucleotidePolymorphism) == True:
+        print 'Selected SNP:'
+        print 'rsID:',SNP.rsID
+        print 'Chromosome:',SNP.chromosome
+        print 'Position:',SNP.position
+        print 'Genotype:',SNP.genotype
+        print 'Reference sequence:',SNP.reference
+    else:
+        print 'Selected SNP:'
+        print 'rsID:',SNP['rsID']
+        print 'Chromosome:',SNP['Chromosome']
+        print 'Position:',SNP['Position']
+        print 'Genotype:',SNP['Genotype']
+        print 'Reference sequence:',SNP['Reference']
 
-anSNP = returnSNP('rs3934834',mylist)
-
-returnSNP('kake',mylist)
-
-def listrs(SNPlist):
-    rslist = [entry['rsID'] for entry in SNPlist]
+def listrs(SNPlist): #Retrieve the rsIDs of all the SNPs in a list, and store them in a new list.
+    rslist = [entry['rsID'] for entry in SNPlist] #Use this function if SNPs are stored as dicts in SNPlist.
     return rslist
 
-small_list = mylist[0:5]
-
-tiny_list = mylist[0:3]
+def listrs2(SNPlist):
+    rslist = [entry.rsID for entry in SNPlist] #Use this function if SNPs are stored as SingleNucleotidePolymorphism class instances in SNPlist.
+    return rslist
 
 def find_union(SNPlist1,SNPlist2):
     #Find SNPs which are in both of two lists
@@ -120,18 +154,10 @@ def find_union(SNPlist1,SNPlist2):
 
 def comparefiles(file1,file2):
     #Compare two genotypefiles. Return SNPs which are in both files.
-    list1 = createlist(file1)
-    list2 = createlist(file2)
+    list1 = createdictlist(file1)
+    list2 = createdictlist(file2)
     inboth = find_union(list1,list2)
     return inboth
-
-showinfo(anSNP)
-
-print 'Comparing files:'
-print comparefiles('snippet.txt','snippet2.txt')
-
-theunion = find_union(mylist,small_list)
-print 'Union:',theunion
 
 def getdiploids(SNPlist):
     diploids = []
@@ -156,21 +182,11 @@ def findhomozygotesIDs(SNPlist):
             homozygotes.append(element['rsID'])
     return homozygotes
 
-homozygotes = findhomozygotesIDs(small_list)
-
-print 'Homozygotes:',homozygotes
-
 def getposinlist(rsID,SNPlist): #Get the position, in an SNP list, of a dictionary entry with a given rsID
     for i in range(len(SNPlist)):
         if SNPlist[i]['rsID']== rsID:
             index = i
     return index
-
-print 'tinylist:',tiny_list
-
-position = getposinlist('rs3094315',tiny_list)
-print 'position:',position
-print 'rs:','rs3094315'
 
 def findheterozygotesIDs(SNPlist):
     #Find all heterozygous loci
@@ -189,8 +205,6 @@ def sanitycheck(SNPlist):
         sane = False
     return sane
 
-print 'Sanitycheck:',sanitycheck(mylist)
-
 def findnoncalled(SNPlist):
     #Find all loci with at least one uncalled base
     noncalled = []
@@ -207,18 +221,12 @@ def findcalled(SNPlist):
             called.append(SNP['rsID'])
     return called
 
-noncalled = findnoncalled(mylist)
-print 'noncalled:',noncalled
-            
-
 def findgenotype(genotype,SNPlist):
     matching = []
     for SNP in SNPlist:
         if SNP['Genotype'] == genotype:
             matching.append(SNP['rsID'])
     return matching
-
-print findgenotype('GG',tiny_list)
 
 def getchromosome(chromosomenumber,SNPlist):
     return filterlist('Chromosome',chromosomenumber,SNPlist)
@@ -256,14 +264,10 @@ def zygosityplot(SNPlist):
     pl.show()
     return counts,left
 
-
+'''
 def chromosomeplot(SNPlist):
     counts = []
-
-def isinlistplot(SNPlist):
-    for SNP in SNPlist:
-        if SNP['rsID
-
+'''
 
 def timewarning(elapsedtime,completedfraction,tolerance):
     '''A function to estimate time needed to complete an operation, and give a warning and option to abort
@@ -278,14 +282,52 @@ def timewarning(elapsedtime,completedfraction,tolerance):
         else:
             return False #Signal to abort the operation.
 
-mydata = createlist('genome_Jarle_Pahr_Full_20110901082829.txt')
-
-zygosityplot(mydata)
+#mydata = createdictlist('genome_Jarle_Pahr_Full_20110901082829.txt')
 
 
-def savelist(snplist,filename): #Write a list of rsIDs to disk.
-    out = "\n".join(snplist)
+#zygosityplot(mydata)
+
+
+def savelist(rsIDlist,filename): #Write a list of rsIDs to disk.
+    out = "\n".join(rsIDlist)
     
     writeout = open(filename, "w+")
     writeout.write(str(out))
     writeout.close()
+
+
+#Tests:
+
+mylist = createdictlist(filename)
+
+small_list = mylist[0:5]
+
+tiny_list = mylist[0:3]
+
+print 'tinylist:',tiny_list
+
+position = getposinlist('rs3094315',tiny_list)
+print 'position:',position
+print 'rs:','rs3094315'
+
+smalldata = createobjectlist('Snippet.txt')
+
+exampleSNP = returnSNP('rs3934834',mylist) #Check if the SNP 'rs3934834' is in the list "mylist".
+showinfo(exampleSNP)
+
+print findgenotype('GG',tiny_list)
+
+homozygotes = findhomozygotesIDs(small_list)
+
+print 'Homozygotes:',homozygotes
+
+print 'Comparing files:'
+print comparefiles('snippet.txt','snippet2.txt')
+
+theunion = find_union(mylist,small_list)
+print 'Union:',theunion
+
+print 'Sanitycheck:',sanitycheck(mylist)
+
+noncalled = findnoncalled(mylist)
+print 'noncalled:',noncalled
