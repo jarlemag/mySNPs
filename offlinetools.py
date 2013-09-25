@@ -37,6 +37,12 @@ class SingleNucleotidePolymorphism:
     def displaygenotype(self):
         print 'Genotype:',self.genotype
 
+class Person:
+    def __init__(self,ident,first_name,last_name):
+        self.ident = ident
+        self.first_name = first_name
+        self.last_name = last_name
+
 #Functions:
 
 #Open dataset
