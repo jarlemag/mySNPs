@@ -43,6 +43,12 @@ class Person:
         self.first_name = first_name
         self.last_name = last_name
 
+class SnpList:
+    pass
+
+
+
+
 #Functions:
 
 #Open dataset
@@ -66,7 +72,7 @@ def createdictlist(filename): #Extract SNP data from a 23andme file and store as
 '''
 Extract SNP data from a 23andme file and store as a list of objects of the SingleNucleotidePolymorphism class.
 '''
-def createobjectlist(SNPlist):
+def createobjectlist(filename):
     with open(filename) as dataset:
         listoflines = dataset.readlines()
 
@@ -78,6 +84,13 @@ def createobjectlist(SNPlist):
             SNPlist.append(currentSNP)
     return SNPlist
 
+
+
+def randomsnp(SNPlist):
+    '''
+    Fetch a random SNP from a SNP list.
+    '''
+    return
 
 def readpartialfile(filename,percentage): #Extract SNP data from part of a file.
     with open(filename) as dataset:
@@ -211,7 +224,7 @@ def sanitycheck(SNPlist):
         sane = False
     return sane
 
-def findnoncalled(SNPlist):
+def find_noncalled(SNPlist):
     #Find all loci with at least one uncalled base
     noncalled = []
     for SNP in SNPlist:
@@ -219,7 +232,7 @@ def findnoncalled(SNPlist):
             noncalled.append(SNP['rsID'])
     return noncalled
 
-def findcalled(SNPlist):
+def find_called(SNPlist):
     #Find all loci with at least one called base
     called = []
     for SNP in SNPlist:
@@ -227,18 +240,28 @@ def findcalled(SNPlist):
             called.append(SNP['rsID'])
     return called
 
-def findgenotype(genotype,SNPlist):
+def find_differing(SNPlist1,SNPlist2):
+    #Find SNPs for which the genotype differs between two lists.
+    #Pseudocode-ish. Have to fix it up.
+    union = find_union(SNPlist1,SNPlist2):
+    differing = []
+    for SNP in union:
+        if SNPlist1[SNP] != SNPlist2[SNP] :
+            differing.append(SNP)
+    return differing
+
+def find_genotype(genotype,SNPlist):
     matching = []
     for SNP in SNPlist:
         if SNP['Genotype'] == genotype:
             matching.append(SNP['rsID'])
     return matching
 
-def getchromosome(chromosomenumber,SNPlist):
+def get_chromosome(chromosomenumber,SNPlist):
     return filterlist('Chromosome',chromosomenumber,SNPlist)
     
 
-def getbyposition(position,SNPlist):
+def get_byposition(position,SNPlist):
     #Fetch one or more SNPs by their position in the reference sequence.
     snps = []
     for SNP in SNPlist:
@@ -246,7 +269,7 @@ def getbyposition(position,SNPlist):
             snps.append(SNP)
     return snps
     
-def getbyrefseq(reference,SNPlist):
+def get_byrefseq(reference,SNPlist):
     return filterlist('Reference',reference,SNPlist)
     
     
