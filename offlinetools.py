@@ -250,6 +250,12 @@ def find_differing(SNPlist1,SNPlist2):
             differing.append(SNP)
     return differing
 
+
+def find_notinboth(SNPlist1,SNPlist2):
+    #Find SNPS which are only in list 1, not in list 2.
+
+    return
+
 def find_genotype(genotype,SNPlist):
     matching = []
     for SNP in SNPlist:
